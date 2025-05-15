@@ -32,10 +32,8 @@ class DDIMSampler:
     ) -> torch.Tensor:
         """Remove noise using DDIM sampling."""
         alpha_t = self.alphas_cumprod[t].view(-1, 1)
-        alpha_t_prev = (
-            self.alphas_cumprod[t - 1].view(-1, 1)
-            if t > 0
-            else torch.ones_like(alpha_t)
+        alpha_t_prev = torch.where(
+            t > 0, self.alphas_cumprod[t - 1].view(-1, 1), torch.ones_like(alpha_t)
         )
 
         # Predict noise
