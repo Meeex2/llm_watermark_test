@@ -31,6 +31,12 @@ class DDIMSampler:
         self, model: torch.nn.Module, x: torch.Tensor, t: torch.Tensor, eta: float = 0.0
     ) -> torch.Tensor:
         """Remove noise using DDIM sampling."""
+        # Ensure t is a tensor of the right shape
+        if not isinstance(t, torch.Tensor):
+            t = torch.tensor(t, device=self.device)
+        t = t.view(-1)  # Make sure t is 1D
+
+        # Get alpha values with proper broadcasting
         alpha_t = self.alphas_cumprod[t].view(-1, 1)
         alpha_t_prev = torch.where(
             t > 0, self.alphas_cumprod[t - 1].view(-1, 1), torch.ones_like(alpha_t)
@@ -39,7 +45,7 @@ class DDIMSampler:
         # Predict noise
         pred_noise = model(x, t)
 
-        # DDIM sampling
+        # DDIM sampling with proper broadcasting
         sigma_t = (
             eta
             * torch.sqrt((1 - alpha_t_prev) / (1 - alpha_t))
@@ -49,7 +55,7 @@ class DDIMSampler:
         # Mean prediction
         pred_x0 = (x - torch.sqrt(1 - alpha_t) * pred_noise) / torch.sqrt(alpha_t)
 
-        # Direction pointing to x_t
+        # Direction pointing to x_t (ensure broadcasting)
         dir_xt = torch.sqrt(1 - alpha_t_prev - sigma_t**2) * pred_noise
 
         # Final prediction
