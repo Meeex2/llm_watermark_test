@@ -56,14 +56,14 @@ class DDIMSampler:
         pred_x0 = (x - torch.sqrt(1 - alpha_t) * pred_noise) / torch.sqrt(alpha_t)
 
         # Direction pointing to x_t (ensure broadcasting)
-        dir_xt = torch.sqrt(1 - alpha_t_prev - sigma_t**2) * pred_noise
+        dir_xt = torch.sqrt(1 - alpha_t_prev - sigma_t**2).view(-1, 1) * pred_noise
 
         # Final prediction
         x_prev = torch.sqrt(alpha_t_prev) * pred_x0 + dir_xt
 
         if eta > 0:
             noise = torch.randn_like(x)
-            x_prev = x_prev + sigma_t * noise
+            x_prev = x_prev + sigma_t.view(-1, 1) * noise
 
         return x_prev
 
