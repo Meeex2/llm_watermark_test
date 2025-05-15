@@ -4,6 +4,12 @@ import pandas as pd
 from scipy.stats import wasserstein_distance
 from sklearn.metrics import mean_squared_error
 import matplotlib.pyplot as plt
+import sys
+import os
+
+# Add the parent directory to the Python path
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from tabsyn.model import MLPDiffusion, Model
 from tabsyn.latent_utils import get_input_generate, split_num_cat_target, recover_data
 
